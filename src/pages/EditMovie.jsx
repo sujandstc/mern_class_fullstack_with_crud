@@ -1,17 +1,14 @@
 import axios from "axios";
 import Title from "../components/title";
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { Button, Input, Form, Spin } from "antd";
 
 const EditMovie = () => {
+  const [singleMovieData, setSingleMovieData] = useState({});
   const navigate = useNavigate();
 
   const { movie_id } = useParams();
-
-  const movie_name_ref = useRef();
-  const rating_ref = useRef();
-  const info_ref = useRef();
-  const image_ref = useRef();
 
   useEffect(() => {
     getSingleMovies(movie_id);
@@ -22,24 +19,13 @@ const EditMovie = () => {
       const response = await axios.get(
         `http://localhost:4000/movie/${movie_id}`
       );
-      movie_name_ref.current.value = response.data.moviesData.name ?? "";
-      rating_ref.current.value = response.data.moviesData.rating ?? "";
-      info_ref.current.value = response.data.moviesData.info ?? "";
-      image_ref.current.value = response.data.moviesData.image ?? "";
+      setSingleMovieData(response.data.moviesData);
     } catch (e) {
       alert("Err");
     }
   };
 
-  const editMovie = async () => {
-    const dataToSend = {
-      movie_id: movie_id,
-      name: movie_name_ref.current.value,
-      rating: rating_ref.current.value,
-      info: info_ref.current.value,
-      image: image_ref.current.value,
-    };
-
+  const onFinish = async (values) => {
     try {
       await axios.patch(`http://localhost:4000/movies`, dataToSend);
       navigate(-1);
@@ -52,51 +38,58 @@ const EditMovie = () => {
   return (
     <>
       <Title title="Edit Movie" />
-      <form
-        className="p-3"
-        onSubmit={(e) => {
-          e.preventDefault();
-          editMovie();
-        }}
+      <Form
+        name="basic"
+        labelCol={{ span: 8 }}
+        wrapperCol={{ span: 16 }}
+        style={{ maxWidth: 600 }}
+        onFinish={onFinish}
+        autoComplete="off"
       >
-        Movie name:
-        <br />
-        <input
-          type="text"
-          className="bg-gray-300 p-1"
-          ref={movie_name_ref}
-        ></input>{" "}
-        <br />
-        <br />
-        Info:
-        <br />
-        <input
-          type="text"
-          className="bg-gray-300 p-1"
-          ref={info_ref}
-        ></input>{" "}
-        <br />
-        <br />
-        Ratings:
-        <br />
-        <input
-          type="text"
-          className="bg-gray-300 p-1"
-          ref={rating_ref}
-        ></input>{" "}
-        <br />
-        <br />
-        Image:
-        <br />
-        <input
-          type="text"
-          className="bg-gray-300 p-1"
-          ref={image_ref}
-        ></input>{" "}
-        <br />
-        <br />
-        <button type="submit"> Update movie</button>
-      </form>
+        <Form.Item
+          label="Movie name"
+          name="name"
+          initialValue={singleMovieData.name}
+          rules={[{ required: true, message: "Movie name is required" }]}
+        >
+          <Input />
+        </Form.Item>
+
+        <Form.Item
+          label="Info"
+          name="info"
+          rules={[{ required: true, message: "Info is required" }]}
+        >
+          <Input />
+        </Form.Item>
+
+        <Form.Item
+          label="Image"
+          name="image"
+          rules={[{ required: true, message: "Image is required" }]}
+        >
+          <Input />
+        </Form.Item>
+
+        <Form.Item
+          label="Rating"
+          name="rating"
+          rules={[
+            {
+              required: true,
+              message: "Rating is required",
+            },
+          ]}
+        >
+          <Input type="number" />
+        </Form.Item>
+
+        <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
+          <Button type="default" htmlType="submit">
+            Submit
+          </Button>
+        </Form.Item>
+      </Form>
     </>
   );
 };

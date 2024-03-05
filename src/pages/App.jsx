@@ -2,6 +2,7 @@ import axios from "axios";
 import Title from "../components/title";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { Empty } from "antd";
 
 const App = () => {
   const navigate = useNavigate();
@@ -34,7 +35,7 @@ const App = () => {
       <Title title="Movies" />
       {movies.length < 1 && (
         <>
-          <div className="p-10 text-center">No movies here!</div>
+          <Empty />
         </>
       )}
 
